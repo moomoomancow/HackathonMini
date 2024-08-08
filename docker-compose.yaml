@@ -1,0 +1,107 @@
+# version: "3.1"
+# services:
+#   frontend:
+#     build: ./client
+#     volumes:
+#       - "./client:/app"
+#     ports:
+#       - "3000:3000"
+#     networks:
+#       - ticket-network
+#     depends_on:
+#       - server
+
+#   server:
+#     build: ./server
+#     volumes:
+#       - "./server:/app"
+#     ports:
+#       - "3001:3001"
+#     networks:
+#       - app-network
+#     environment:
+#       DB_CONNECTION_STRING: postgres://postgres:password@db:5432/db
+#     depends_on:
+#       - db
+
+#   db:
+#     image: db
+#     container_name: db
+#     ports:
+#       - "5432:5432"
+#     environment:
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: db
+
+#     volumes:
+#       - ./my_data_directory:/var/lib/postgresql/data
+#     networks:
+#       - ticket-network
+
+# networks:
+#   ticket-network:
+#     driver: bridge
+
+volumes:
+  postgres_data:
+
+services:
+  postgresdb:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=tickets
+      # - POSTGRES_PORT=5432
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # networks:
+    #   - ticket-network
+
+  server:
+    build: ./server
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    ports:
+      - '8080:8080'
+    # environment:
+    #   - POSTGRES_USER=postgres
+    #   - POSTGRES_PASSWORD=docker
+    #   - POSTGRES_DB=tickets
+    #   - POSTGRES_PORT=5432
+    #   - DATABASE_HOST=postgresdb
+    #   - NODE_ENV=development
+    volumes:
+      - type: bind
+        source: ./server
+        target: /app/src
+    command: npm run start:dev
+    # networks:
+    #   - ticket-network
+
+  client:
+    build: ./client
+    depends_on:
+      - server
+    ports:
+      - '3000:3000'
+    volumes:
+      - type: bind
+        source: ./client
+        target: /app
+    # networks:
+    #   - ticket-network
+
+# networks:
+#   ticket-network:
+#     driver: bridge
