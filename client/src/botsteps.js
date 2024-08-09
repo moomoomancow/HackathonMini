@@ -1,6 +1,6 @@
 import phoneimg from './media/rtaImage.jpeg'
 import React from 'react';
-import handleTicketNumberChange from './App.js'
+
 
 
 const BotRedirect = ({ url, message }) => {
@@ -14,11 +14,6 @@ const BotRedirect = ({ url, message }) => {
     </div>
   );
 };
-
-// const ticketFetch = (x) => {
-//   return
-// }
-
 
 
 const botSteps = (onTicketNumberChange, ticket) => [
@@ -126,7 +121,6 @@ const botSteps = (onTicketNumberChange, ticket) => [
 {
   id: "showTicketInfo",
   component: (props) => {
-    // Remove props that shouldn't be passed to DOM elements
     const { previousStep, triggerNextStep, ...restProps } = props;
     return (
       <div {...restProps}>
