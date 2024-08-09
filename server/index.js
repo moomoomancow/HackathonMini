@@ -25,6 +25,20 @@ app.get('/:ticketNumber', function(req, res) {
     );
 });
 
+app.get('/', function(req, res) {
+  knex('tickets')
+    .select('*')
+    .then(data => res.status(200).json(data))
+    .catch(err =>
+      {console.log(err)
+        return res.status(404).json({
+        message:
+          'The data you are looking for could not be found. Please try again'
+      })
+      }
+    );
+});
+
 app.listen(PORT, () => {
   console.log(`The server is running on ${PORT}`);
 });

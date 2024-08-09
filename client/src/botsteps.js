@@ -1,4 +1,8 @@
 import phoneimg from './media/rtaImage.jpeg'
+import React from 'react';
+import handleTicketNumberChange from './App.js'
+
+
 const BotRedirect = ({ url, message }) => {
 
 
@@ -17,7 +21,7 @@ const BotRedirect = ({ url, message }) => {
 
 
 
-const botSteps = [
+const botSteps = (onTicketNumberChange, ticket) => [
 
   ////Start
   {
@@ -36,7 +40,7 @@ const botSteps = [
       { value: 1, label: "Phone issues", trigger: "phoneIssue" },
       { value: 2, label: "Computer issues", trigger: 'computerIssue'},
       { value: 3, label: "Account issues", trigger: "accountIssue" },
-      // { value: 3, label: "Check existing ticket", trigger: "checkTicket" }
+      { value: 4, label: "Check existing ticket", trigger: "checkTicket" }
 
     ]
   },
@@ -106,6 +110,44 @@ const botSteps = [
 
 
 
+  {
+    id: "checkTicket",
+    message: "Please enter your ticket number:",
+    trigger: "getTicketNumber"
+  },
+  {
+  id: "getTicketNumber",
+  user: true,
+  trigger: ({ value }) => {
+    onTicketNumberChange(value);
+    return "showTicketInfo";
+  }
+},
+{
+  id: "showTicketInfo",
+  component: (props) => {
+    // Remove props that shouldn't be passed to DOM elements
+    const { previousStep, triggerNextStep, ...restProps } = props;
+    return (
+      <div {...restProps}>
+        {ticket.length > 0 ? (
+          <div>
+            <h4>Ticket Information:</h4>
+            <p><strong>Customer:</strong> {ticket[0].customer}</p>
+            <p><strong>Ticket Number:</strong> {ticket[0].ticketnumber}</p>
+            <p><strong>Type:</strong> {ticket[0].tickettype}</p>
+            <p><strong>Workflow:</strong> {ticket[0].workflow}</p>
+            <p><strong>Created At:</strong> {new Date(ticket[0].created_at).toLocaleString()}</p>
+            <p><strong>Updated At:</strong> {new Date(ticket[0].updated_at).toLocaleString()}</p>
+          </div>
+        ) : (
+          <p>No ticket found for the entered number.</p>
+        )}
+      </div>
+    );
+  },
+  trigger:'7'
+},
 
 
   //////Computer Issues
